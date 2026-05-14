@@ -1,0 +1,50 @@
+const express = require('express');
+const cors = require('cors');
+const bodyParser = require('body-parser');
+require('dotenv').config();
+
+const sequelize = require('./config/database');
+
+// Importar rutas
+const usuariosRoutes = require('./routes/usuarios');
+const productosRoutes = require('./routes/productos');
+const ventasRoutes = require('./routes/ventas');
+const comprasRoutes = require('./routes/compras');
+const categoriasRoutes = require('./routes/categorias');
+const proveedoresRoutes = require('./routes/proveedores');
+const alertasRoutes = require('./routes/alertas');
+
+const app = express();
+
+// Middleware
+app.use(cors());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+// Rutas
+app.use('/api/usuarios', usuariosRoutes);
+app.use('/api/productos', productosRoutes);
+app.use('/api/ventas', ventasRoutes);
+app.use('/api/compras', comprasRoutes);
+app.use('/api/categorias', categoriasRoutes);
+app.use('/api/proveedores', proveedoresRoutes);
+app.use('/api/alertas', alertasRoutes);
+
+// Ruta de prueba
+app.get('/api/health', (req, res) => {
+  res.json({ mensaje: 'Servidor funcionando correctamente', timestamp: new Date() });
+});
+
+// Sincronizar base de datos
+sequelize.sync({ alter: false }).then(() => {
+  console.log('Base de datos sincronizada');
+}).catch(error => {
+  console.error('Error al sincronizar BD:', error);
+});
+
+// Iniciar servidor
+const PORT = process.env.PORT || 4000;
+app.listen(PORT, () => {
+  console.log(`Servidor ejecutándose en puerto ${PORT}`);
+  console.log(`http://localhost:${PORT}`);
+});
